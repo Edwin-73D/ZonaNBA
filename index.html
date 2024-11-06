@@ -62,8 +62,8 @@
                             </ul>
                         </li>
                     </ul>
-                    <form>
-                        <button class="btn btn-primary rounded-pill px-3 m-3" data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                    <form action="javascript:abrir()">
+                        <button class="btn btn-primary rounded-pill px-3 m-3" >
                             <span class="d-flex align-items-center">
                                 <i class="bi-person-fill me-2"></i>
                                 <span class="small">login</span>
@@ -307,9 +307,33 @@
         <footer class="py-5 bg-dark">
             <div class="container"><p class="m-0 text-center text-white">Copyright &copy; Your Website 2023</p></div>
         </footer>
+
+        <div id="backgroundOverlay"></div>
+
+        <div class="formulario" id="loginW">
+            <h1 id="titleLogin">Iniciar Sesion</h1>
+            <form id="formSesion" method="post">
+                <div class="UserName">
+                    <input type="text" required>
+                    <label>Nombre de Usuario</label>
+
+                </div>
+                <div class="Password">
+                    <input type="password" required>
+                    <label>Contraseña</label>   
+
+                </div>
+                <div class="text-center"><a class="btn btn-outline-primary mt-2" href="#">Login</a>
+                <div class="Register-link mt-2 mb-2">
+                    quiero <a href="#">registrarme</a>
+                </div>
+            </form> 
+
+        </div>
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
+
     </body>
 </html>
