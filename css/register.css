@@ -6,6 +6,7 @@
 
 body{
     background-image: url("/assets/img/240_F_1001107049_nweRuVQI84n2daYPfZK40A8tQ5Rieoc4.jpg");
+    background-size: cover;
 }
 
 .form-registro{
@@ -13,11 +14,12 @@ body{
     background: #24303c;
     padding: 30px;
     margin: auto;
-    margin-top: 100px;
+    margin-top: 50px;
     border-radius: 4px;
     font-family:'Times New Roman', Times, serif;
     color: white;
     box-shadow: 7px 13px 37px #000;
+    z-index: 1;
 }
 
 
@@ -61,3 +63,45 @@ body{
     margin: 16px 0;
     font-size: 16px;
 }
+
+#registro-confirmacion{
+    width: 400px;
+    height: 150px;
+    background: white;
+    margin: auto;
+    position: absolute;
+    top: 150px;
+    left: 430px;
+    border-radius: 10px;
+    display: none;
+
+}
+
+#registro-confirmacion h1{
+    text-align: center;
+    background: #1f53c5;
+    font-family: 'Times New Roman', Times, serif;
+    color: white;
+}
+
+#registro-confirmacion p{
+    margin: 25px;
+    margin-left: 80px;
+}
+
+#registro-confirmacion a{
+    text-align: center;
+    font-size: 20px;
+    color: #000;
+    font-family: 'Times New Roman', Times, serif;
+
+}
+
+#registro-confirmacion a:hover{
+    color: blue;
+}
+
+
+
+
+
