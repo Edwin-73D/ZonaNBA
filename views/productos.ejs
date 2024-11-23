@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos</title>
+    <link rel="stylesheet" href="css/admin-styles.css">
+</head>
+<body>
+    <h1 style="text-align: center;">Lista de Productos</h1>
+    <table id="tabla-productos">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Equipo</th>
+                <th>Talla</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Descripcion</th>
+                <th>Img</th>
+                <th>Codigo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Aquí se llenarán los productos dinámicamente -->
+            <% productos.forEach(producto => { %>
+                <tr>
+                    <td><%= producto.idProducto %></td>
+                    <td><%= producto.Nombre %></td>
+                    <td><%= producto.Equipo %></td>
+                    <td><%= producto.Talla %></td>
+                    <td><%= producto.Precio %></td>
+                    <td><%= producto.Stock %></td>
+                    <td><%= producto.Descripcion %></td>
+                    <td><%= producto.Img %></td>
+                    <td><%= producto.Codigo %></td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+    </script>
+</body>
+</html>

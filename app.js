@@ -26,9 +26,54 @@ const connection = require("./database/db");
 
 app.get("/login", (req, res)=>{
     res.render("login");
+    //res.render("login");
 })
 app.get("/registro", (req, res)=>{
     res.render("register");
+})
+app.get("/admin", (req, res)=>{
+    res.render("admin");
+})
+app.get("/eliminarProducto", (req, res) => {
+    res.render("eliminarProducto");  
+});
+app.get("/modificarProducto", (req, res) => {
+    res.render("modificarProducto");  
+});
+
+
+
+
+
+
+
+
+
+//-Registro de productos
+app.post("/admin", async (req, res)=>{
+    const nombre = req.body.nombre;
+    const equipo = req.body.equipo;
+    const talla = req.body.talla;
+    const precio = req.body.precio;
+    const stock = req.body.stock;
+    const descripcion = req.body.descripcion;
+    const img = req.body.img;
+    const codigo = req.body.codigo;
+    connection.query("INSERT INTO productos SET ?", {Nombre:nombre, Equipo:equipo, Talla:talla, Precio:precio, Stock:stock, Descripcion:descripcion, Img:img, Codigo:codigo}, async(error,results)=>{
+        if(error){
+            console.log(error);
+        }else{
+            res.render("admin", {
+                alert: true,
+                alertTitle: "Registro",
+                alertMessage:"Registro Exitoso!",
+                alertIcon:"Exitoso",
+                showConfirmButton:false,
+                timer:1500,
+                ruta:"admin" 
+             })
+        }
+    })
 })
 
 //-Registro de usuarios
@@ -57,6 +102,58 @@ app.post("/register", async (req, res)=>{
         }
     })
 })
+
+//-tabla de productos
+app.get("/productos", (req, res) => {
+    const query = "SELECT * FROM productos";
+    connection.query(query, (error, results) => {
+        if (error) {
+            console.error("Error al obtener productos:", error);
+            res.status(500).send("Error al cargar los productos");
+        } else {
+            res.render("productos", { productos: results }); // Renderiza la vista EJS con los datos
+        }
+    });
+});
+
+//-eliminar Productos
+// Ruta POST para procesar la eliminación del producto
+app.post("/eliminarProducto", (req, res) => {
+    const { idProducto } = req.body;  // Recibe el ID del producto desde el formulario
+
+    // Consulta SQL para eliminar el producto con el ID proporcionado
+    const query = "DELETE FROM productos WHERE idProducto = ?";
+
+    connection.query(query, [idProducto], (error, results) => {
+        if (error) {
+            console.log("Error al eliminar el producto:", error);
+
+            
+        } else {
+            if (results.affectedRows > 0) {
+                res.render("eliminarProducto", {
+                    alert: true,
+                    alertTitle: "Eliminado",
+                    alertMessage:"Eliminacion Exitosa!",
+                    alertIcon:"Exitoso",
+                    showConfirmButton:false,
+                    timer:1500,
+                    ruta:"productos" 
+                 })
+            } else {
+                    res.render("eliminarProducto", {
+                        alert: true,
+                        alertTitle: "Error",
+                        alertMessage:"No se pudo Eliminar!",
+                        alertIcon:"Fail",
+                        showConfirmButton:false,
+                        timer:1500,
+                        ruta:"eliminarProducto" 
+                     })
+            }
+        }
+    });
+});
 
 //-Loguin
 
