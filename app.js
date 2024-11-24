@@ -9,6 +9,8 @@ dotenv.config({path:"./env/.env"})
 
 app.use(express.static("public"));
 
+app.use("/", require("./router"));
+
 //-var sesion
 const session = require("express-session");
 app.use(session ({
@@ -23,26 +25,6 @@ app.use(session ({
 const connection = require("./database/db");
 
 //-Estableciendo las rutas
-
-app.get("/login", (req, res)=>{
-    res.render("login");
-    //res.render("login");
-})
-app.get("/registro", (req, res)=>{
-    res.render("register");
-})
-app.get("/admin", (req, res)=>{
-    res.render("admin");
-})
-app.get("/eliminarProducto", (req, res) => {
-    res.render("eliminarProducto");  
-});
-app.get("/modificarProducto", (req, res) => {
-    res.render("modificarProducto");  
-});
-
-
-
 
 
 
@@ -202,19 +184,24 @@ app.post("/auth", async (req, res) => {
 
 //- Auth pages
 app.get("/", (req, res) => {
-    console.log("Session loggedin: ", req.session.loggedin);  // Verifica el estado de la sesión
-    if (req.session.loggedin) {
+    console.log("Session loggedin: ", req.session.loggedin); // Verifica el estado de la sesión
+
+    // Consulta los productos de la base de datos
+    connection.query("SELECT * FROM productos", (error, results) => {
+        if (error) {
+            console.error("Error al obtener productos:", error);
+            return res.status(500).send("Error interno del servidor");
+        }
+
+        // Renderiza la vista index con la información de sesión y productos
         res.render("index", {
-            login: true,
-            nombre: req.session.nombre
+            login: req.session.loggedin || false,
+            nombre: req.session.loggedin ? req.session.nombre : "Login",
+            results: results // Pasamos los productos a la vista
         });
-    } else {
-        res.render("index", {
-            login: false,
-            nombre: "Login"
-        });
-    }
+    });
 });
+
 
 //Logout
 //Destruye la sesión.
@@ -229,8 +216,6 @@ app.get('/logout', function (req, res) {
 //- establecemos el motor de plantillas
 app.set("view engine", "ejs");
 
-//- invocamos a bcrypt.js
-const bcryptjs = require("bcryptjs");
 
 
 
