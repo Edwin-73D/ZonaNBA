@@ -169,6 +169,7 @@ app.post("/auth", async (req, res) => {
         // Si la autenticación es exitosa
         req.session.loggedin = true;
         req.session.nombre = results[0].Nombre;
+        req.session.rol = results[0].Rol;
         return res.render("login", {
             alert: true,
             alertTitle: "Exitoso",
@@ -197,6 +198,7 @@ app.get("/", (req, res) => {
         res.render("index", {
             login: req.session.loggedin || false,
             nombre: req.session.loggedin ? req.session.nombre : "Login",
+            rol: req.session.loggedin ? req.session.rol : null,
             results: results // Pasamos los productos a la vista
         });
     });
