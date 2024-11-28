@@ -9,8 +9,6 @@ dotenv.config({path:"./env/.env"})
 
 app.use(express.static("public"));
 
-app.use("/", require("./router"));
-
 //-var sesion
 const session = require("express-session");
 app.use(session ({
@@ -19,148 +17,17 @@ app.use(session ({
     saveUninitialized: true
 }))
 
-
-//console.log(__dirname);
-//- invocamos el modulo de la conexion de la db
-const connection = require("./database/db");
-
-//-Estableciendo las rutas
+app.use("/", require("./router"));
 
 
 
 
 
 
-//-Registro de productos
 
-//-Registro de usuarios
-app.post("/register", async (req, res)=>{
-    const nombre = req.body.nombre;
-    const apellido = req.body.apellido;
-    const correo = req.body.correo;
-    const password = req.body.password;
-    const direccion = req.body.direccion;
-    const telefono = req.body.telefono;
-    const rol = req.body.rol;
-    const fecha_nacimiento = req.body.fecha_nacimiento;
-    connection.query("INSERT INTO usuarios SET ?", {Nombre:nombre, Apellido:apellido, Correo:correo, Password:password, Direccion:direccion, Telefono:telefono, Rol:rol, FechaNacimiento:fecha_nacimiento}, async(error,results)=>{
-        if(error){
-            console.log(error);
-        }else{
-            res.render("register", {
-               alert: true,
-               alertTitle: "Registro",
-               alertMessage:"Registro Exitoso!",
-               alertIcon:"Exitoso",
-               showConfirmButton:false,
-               timer:1500,
-               ruta:" " 
-            })
-        }
-    })
-})
-
-//-tabla de productos
-app.get("/productos", (req, res) => {
-    const query = "SELECT * FROM productos";
-    connection.query(query, (error, results) => {
-        if (error) {
-            console.error("Error al obtener productos:", error);
-            res.status(500).send("Error al cargar los productos");
-        } else {
-            res.render("productos", { productos: results }); // Renderiza la vista EJS con los datos
-        }
-    });
-});
-
-
-//-Loguin
-
-app.post("/auth", async (req, res) => {
-    const correo = req.body.correo;
-    const password = req.body.password;
-
-    if (!correo || !password) {
-        return res.status(400).send("Por favor, ingresa correo y contraseña.");
-    }
-
-    connection.query("SELECT * FROM usuarios WHERE Correo = ?", [correo], (error, results) => {
-        if (error) {
-            console.error("Error en la consulta SQL:", error);
-            return res.status(500).send("Error en el servidor.");
-        }
-
-        // Si no se encuentra el usuario o la contraseña es incorrecta
-        if (!results || results.length === 0 || results[0].Password !== password) {
-            return res.render("login", {
-                alert: true,
-                alertTitle: "Error",
-                alertMessage: "Correo o Contraseña incorrecta",
-                alertIcon: "error",
-                showConfirmButton: true,
-                timer: 60000,
-                ruta: "login"
-            });
-        }
-
-        // Si la autenticación es exitosa
-        req.session.loggedin = true;
-        req.session.nombre = results[0].Nombre;
-        req.session.rol = results[0].Rol;
-        req.session.idUsuarios = results[0].idUsuarios;
-        return res.render("login", {
-            alert: true,
-            alertTitle: "Exitoso",
-            alertMessage: "Login Exitoso!",
-            alertIcon: "success",
-            showConfirmButton: false,
-            timer: 1500,
-            ruta: " "
-        });
-    });
-});
-
-
-//- Auth pages
-app.get("/", (req, res) => {
-    console.log("Session loggedin: ", req.session.loggedin); // Verifica el estado de la sesión
-
-    // Consulta los productos de la base de datos
-    connection.query("SELECT * FROM productos", (error, results) => {
-        if (error) {
-            console.error("Error al obtener productos:", error);
-            return res.status(500).send("Error interno del servidor");
-        }
-
-        // Renderiza la vista index con la información de sesión y productos
-        res.render("index", {
-            login: req.session.loggedin || false,
-            nombre: req.session.loggedin ? req.session.nombre : "Login",
-            rol: req.session.loggedin ? req.session.rol : null,
-            results: results // Pasamos los productos a la vista
-        });
-    });
-});
-
-
-//Logout
-//Destruye la sesión.
-app.get('/logout', function (req, res) {
-	req.session.destroy(() => {
-	  res.redirect('/') // siempre se ejecutará después de que se destruya la sesión
-	})
-});
-
-// Middleware para verificar que el usuario esté autenticado
-const verificarAutenticacion = (req, res, next) => {
-    if (!req.session.idUsuarios) {
-        return res.redirect("/login"); // Redirige a la página de inicio de sesión si no está autenticado
-    }
-    next();
-};
 
 // Ruta para mostrar el carrito
-app.get("/carrito", verificarAutenticacion, (req, res) => {
+/* app.get("/carrito", verificarAutenticacion, (req, res) => {
     const userId = req.session.idUsuarios;
 
     if (!userId) {
@@ -185,11 +52,11 @@ app.get("/carrito", verificarAutenticacion, (req, res) => {
             res.render("carrito", { carrito: results });
         }
     );
-    
-});
+     */
+//});
 
 // Ruta para agregar un producto al carrito
-app.post("/carrito/agregar", verificarAutenticacion, (req, res) => {
+/* app.post("/carrito/agregar", verificarAutenticacion, (req, res) => {
     const { producto_id } = req.body;
     const userId = req.session.idUsuarios;
 
@@ -238,12 +105,12 @@ app.post("/carrito/agregar", verificarAutenticacion, (req, res) => {
             }
         }
     );
-});
+}); */
 
 
 // Ruta para eliminar un producto del carrito
 // Ruta para eliminar un producto del carrito
-app.post("/carrito/eliminar/:producto_id", verificarAutenticacion, (req, res) => {
+/* app.post("/carrito/eliminar/:producto_id", verificarAutenticacion, (req, res) => {
     const { producto_id } = req.params; // Tomamos el producto_id desde la URL
     const userId = req.session.idUsuarios; // ID del usuario desde la sesión
 
@@ -259,7 +126,7 @@ app.post("/carrito/eliminar/:producto_id", verificarAutenticacion, (req, res) =>
             }
         }
     );
-});
+}); */
 
 
 

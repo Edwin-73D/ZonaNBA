@@ -1,22 +1,34 @@
 const express = require("express");
 const connection = require("./database/db");
 const crud = require("./controller/crud");
+const auth = require("./controller/auth"); 
 const carrito = require("./controller/carrito");
 const router = express.Router();
 
-router.get("/login", (req, res)=>{
+
+
+// Página principal (Home)
+router.get("/", auth.renderHomePage);
+
+// Rutas de autenticación (login y registro)
+router.get("/login", (req, res) => {
     res.render("login");
-    //res.render("login");
-})
-router.get("/registro", (req, res)=>{
-    res.render("register");
-})
-/* router.get("/admin", (req, res)=>{
-    res.render("admin");
-}) */
-router.get("/eliminarProducto", (req, res) => {
-    res.render("eliminarProducto");  
 });
+router.get("/registro", (req, res) => {
+    res.render("register");
+});
+router.post("/login", auth.login); // Ruta POST para login
+router.post("/register", auth.register); // Ruta POST para registro
+
+// Cerrar sesión
+router.get("/logout", auth.logout);
+
+// Verificar autenticación (middleware)
+router.use(auth.verificarAutenticacion); // Protege las rutas que requieran autenticación
+
+// Aquí puedes agregar otras rutas protegidas que necesiten autenticación
+
+
 router.get("/create", (req, res)=>{
     res.render("create");
 })
@@ -40,28 +52,20 @@ router.get('/product/:idProducto', crud.getProductDetails);
 router.post("/save", crud.save);
 router.post("/update", crud.update);
 
-router.get('/edit/:idProductos', (req,res)=>{    
-    const idProducto = req.params.idProductos;
-    connection.query('SELECT * FROM productos WHERE idProducto=?',[idProducto] , (error, results) => {
-        if (error) {
-            throw error;
-        }else{            
-            res.render('edit.ejs', {productos:results[0]});            
-        }        
-    });
-});
+router.get('/edit/:idProducto', crud.editProduct);
 
-//-eliminar productos
-router.get('/delete/:idProducto', (req, res) => {
-    const idProducto = req.params.idProducto;
-    connection.query('DELETE FROM productos WHERE idProducto = ?',[idProducto], (error, results)=>{
-        if(error){
-            console.log(error);
-        }else{           
-            res.redirect('/admin');         
-        }
-    })
-});
+// Ruta para eliminar producto
+router.get('/delete/:idProducto', crud.deleteProduct);
+
+
+// Ruta para mostrar el carrito
+router.get("/carrito", auth.verificarAutenticacion, carrito.mostrarCarrito);
+
+// Ruta para agregar un producto al carrito
+router.post("/carrito/agregar", auth.verificarAutenticacion, carrito.agregarAlCarrito);
+
+// Ruta para eliminar un producto del carrito
+router.post("/carrito/eliminar/:producto_id", auth.verificarAutenticacion, carrito.eliminarDelCarrito);
 
 
 
