@@ -37,3 +37,19 @@ exports.update = (req, res)=>{
     })
 }
 
+exports.getProductDetails = (req, res) => {
+    const idProducto = req.params.idProducto; // Obtener el idProducto de la URL
+    connection.query("SELECT * FROM productos WHERE idProducto = ?", [idProducto], (error, results) => {
+        if (error) {
+            console.log(error);
+            return res.status(500).send("Error en la consulta.");
+        }
+        if (results.length > 0) {
+            // Si el producto existe, lo pasamos a la vista
+            res.render('product', { producto: results[0] });
+        } else {
+            // Si no se encuentra el producto, mostramos un error
+            res.status(404).send("Producto no encontrado");
+        }
+    });
+};

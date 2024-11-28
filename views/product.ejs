@@ -11,7 +11,7 @@
         <!-- Bootstrap icons-->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
         <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="css/product.css" rel="stylesheet" />
+        <link rel="stylesheet" href="/css/product.css"  />
     </head>
     <body>
         <!-- Navigation-->
@@ -34,11 +34,11 @@
                         </li>
                     </ul>
                     <form class="d-flex">
-                        <button class="btn btn-outline-dark" type="submit">
+                        <button class="btn btn-outline-dark" type="button" onclick="window.location.href='/carrito'">
                             <i class="bi-cart-fill me-1"></i>
                             Cart
                             <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
-                        </button>
+                        </button>                        
                     </form>
                 </div>
             </div>
@@ -47,21 +47,21 @@
         <section class="py-5">
             <div class="container px-4 px-lg-5 my-5">
                 <div class="row gx-4 gx-lg-5 align-items-center">
-                    <div class="col-md-6"><img class="card-img-top mb-5 mb-md-0" src="/assets/img/Ja_Morant.png" alt="..." /></div>
+                    <div class="col-md-6"><img class="card-img-top mb-5 mb-md-0" src="<%= producto.Img %>" alt="imagen del producto" /></div>
                     <div class="col-md-6">
-                        <div class="small mb-1">Codigo: BST-498</div>
-                        <h1 class="display-5 fw-bolder">Memphis Grizlies Jersey</h1>
+                        <div class="small mb-1">Codigo: <%= producto.Codigo %></div>
+                        <h1 class="display-5 fw-bolder"><%= producto.Nombre %></h1>
                         <div class="fs-5 mb-5">
-                            <span class="text-decoration-line-through">$70.000</span>
-                            <span>$40.000</span>
+                            <span class="text-decoration-line-through">$100.000</span>
+                            <span>$<%= producto.Precio %></span>
                         </div>
-                        <p class="lead">Demuestra tu apoyo a los Memphis Grizzlies con esta camiseta oficial, hecha de 100% algodón de alta calidad para una comodidad máxima. Con un diseño clásico y detalles en los colores representativos del equipo, es perfecta tanto para el día a día como para ver el partido. Su corte regular y material transpirable te aseguran un ajuste cómodo y ligero.</p>
+                        <p class="lead"><%= producto.Descripcion %></p>
                         <div class="d-flex">
                             <input class="form-control text-center me-3" id="inputQuantity" type="num" value="1" style="max-width: 3rem" />
-                            <button class="btn btn-outline-dark flex-shrink-0" type="button">
+                            <button class="btn btn-outline-dark flex-shrink-0" id="addToCart" data-id="<%= producto.idProducto %>" type="button">
                                 <i class="bi-cart-fill me-1"></i>
                                 Add to cart
-                            </button>
+                            </button>                            
                         </div>
                     </div>
                 </div>

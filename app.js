@@ -32,31 +32,6 @@ const connection = require("./database/db");
 
 
 //-Registro de productos
-app.post("/admin", async (req, res)=>{
-    const nombre = req.body.nombre;
-    const equipo = req.body.equipo;
-    const talla = req.body.talla;
-    const precio = req.body.precio;
-    const stock = req.body.stock;
-    const descripcion = req.body.descripcion;
-    const img = req.body.img;
-    const codigo = req.body.codigo;
-    connection.query("INSERT INTO productos SET ?", {Nombre:nombre, Equipo:equipo, Talla:talla, Precio:precio, Stock:stock, Descripcion:descripcion, Img:img, Codigo:codigo}, async(error,results)=>{
-        if(error){
-            console.log(error);
-        }else{
-            res.render("admin", {
-                alert: true,
-                alertTitle: "Registro",
-                alertMessage:"Registro Exitoso!",
-                alertIcon:"Exitoso",
-                showConfirmButton:false,
-                timer:1500,
-                ruta:"admin" 
-             })
-        }
-    })
-})
 
 //-Registro de usuarios
 app.post("/register", async (req, res)=>{
@@ -98,44 +73,6 @@ app.get("/productos", (req, res) => {
     });
 });
 
-//-eliminar Productos
-// Ruta POST para procesar la eliminación del producto
-app.post("/eliminarProducto", (req, res) => {
-    const { idProducto } = req.body;  // Recibe el ID del producto desde el formulario
-
-    // Consulta SQL para eliminar el producto con el ID proporcionado
-    const query = "DELETE FROM productos WHERE idProducto = ?";
-
-    connection.query(query, [idProducto], (error, results) => {
-        if (error) {
-            console.log("Error al eliminar el producto:", error);
-
-            
-        } else {
-            if (results.affectedRows > 0) {
-                res.render("eliminarProducto", {
-                    alert: true,
-                    alertTitle: "Eliminado",
-                    alertMessage:"Eliminacion Exitosa!",
-                    alertIcon:"Exitoso",
-                    showConfirmButton:false,
-                    timer:1500,
-                    ruta:"productos" 
-                 })
-            } else {
-                    res.render("eliminarProducto", {
-                        alert: true,
-                        alertTitle: "Error",
-                        alertMessage:"No se pudo Eliminar!",
-                        alertIcon:"Fail",
-                        showConfirmButton:false,
-                        timer:1500,
-                        ruta:"eliminarProducto" 
-                     })
-            }
-        }
-    });
-});
 
 //-Loguin
 
@@ -170,6 +107,7 @@ app.post("/auth", async (req, res) => {
         req.session.loggedin = true;
         req.session.nombre = results[0].Nombre;
         req.session.rol = results[0].Rol;
+        req.session.idUsuarios = results[0].idUsuarios;
         return res.render("login", {
             alert: true,
             alertTitle: "Exitoso",
@@ -211,6 +149,116 @@ app.get('/logout', function (req, res) {
 	req.session.destroy(() => {
 	  res.redirect('/') // siempre se ejecutará después de que se destruya la sesión
 	})
+});
+
+// Middleware para verificar que el usuario esté autenticado
+const verificarAutenticacion = (req, res, next) => {
+    if (!req.session.idUsuarios) {
+        return res.redirect("/login"); // Redirige a la página de inicio de sesión si no está autenticado
+    }
+    next();
+};
+
+// Ruta para mostrar el carrito
+app.get("/carrito", verificarAutenticacion, (req, res) => {
+    const userId = req.session.idUsuarios;
+
+    if (!userId) {
+        console.error("El ID del usuario no está definido en la sesión.");
+        return res.status(400).send("Usuario no autenticado.");
+    }
+
+    connection.query(
+        `
+        SELECT p.idProducto AS producto_id, p.Nombre AS nombreProducto, p.Precio, c.cantidad, p.Img
+        FROM carrito c
+        JOIN productos p ON c.producto_id = p.idProducto
+        WHERE c.user_id = ?
+        `,
+        [userId],
+        (error, results) => {
+            if (error) {
+                console.error("Error al obtener el carrito:", error);
+                return res.status(500).send("Error al mostrar el carrito.");
+            }
+    
+            res.render("carrito", { carrito: results });
+        }
+    );
+    
+});
+
+// Ruta para agregar un producto al carrito
+app.post("/carrito/agregar", verificarAutenticacion, (req, res) => {
+    const { producto_id } = req.body;
+    const userId = req.session.idUsuarios;
+
+    if (!userId) {
+        console.error("El ID del usuario no está definido en la sesión.");
+        return res.status(400).send("Usuario no autenticado.");
+    }
+
+    // Verificar si el producto ya existe en el carrito del usuario
+    connection.query(
+        `SELECT cantidad FROM carrito WHERE user_id = ? AND producto_id = ?`,
+        [userId, producto_id],
+        (error, results) => {
+            if (error) {
+                console.error("Error al verificar el carrito:", error);
+                return res.status(500).send("Error al verificar el carrito.");
+            }
+
+            if (results.length > 0) {
+                // Si el producto ya existe, incrementar la cantidad
+                const nuevaCantidad = results[0].cantidad + 1;
+                connection.query(
+                    `UPDATE carrito SET cantidad = ? WHERE user_id = ? AND producto_id = ?`,
+                    [nuevaCantidad, userId, producto_id],
+                    (updateError) => {
+                        if (updateError) {
+                            console.error("Error al actualizar el carrito:", updateError);
+                            return res.status(500).send("Error al actualizar el carrito.");
+                        }
+                        res.redirect("/carrito");
+                    }
+                );
+            } else {
+                // Si el producto no existe, insertarlo con cantidad = 1
+                connection.query(
+                    `INSERT INTO carrito (user_id, producto_id, cantidad) VALUES (?, ?, ?)`,
+                    [userId, producto_id, 1],
+                    (insertError) => {
+                        if (insertError) {
+                            console.error("Error al agregar al carrito:", insertError);
+                            return res.status(500).send("Error al agregar al carrito.");
+                        }
+                        res.redirect("/carrito");
+                    }
+                );
+            }
+        }
+    );
+});
+
+
+// Ruta para eliminar un producto del carrito
+// Ruta para eliminar un producto del carrito
+app.post("/carrito/eliminar/:producto_id", verificarAutenticacion, (req, res) => {
+    const { producto_id } = req.params; // Tomamos el producto_id desde la URL
+    const userId = req.session.idUsuarios; // ID del usuario desde la sesión
+
+    connection.query(
+        `DELETE FROM carrito WHERE user_id = ? AND producto_id = ?`, // Consulta SQL
+        [userId, producto_id], // Los parámetros de la consulta
+        (error) => {
+            if (error) {
+                console.error("Error al eliminar del carrito:", error); // Si ocurre un error, lo mostramos
+                res.status(500).send("Error al eliminar del carrito.");
+            } else {
+                res.redirect("/carrito"); // Redirigimos al carrito después de eliminar el producto
+            }
+        }
+    );
 });
 
 

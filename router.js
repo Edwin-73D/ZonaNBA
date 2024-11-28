@@ -1,5 +1,7 @@
 const express = require("express");
 const connection = require("./database/db");
+const crud = require("./controller/crud");
+const carrito = require("./controller/carrito");
 const router = express.Router();
 
 router.get("/login", (req, res)=>{
@@ -30,9 +32,11 @@ router.get("/admin", (req, res)=>{
     }) 
 })
 
+router.get('/product/:idProducto', crud.getProductDetails);
 
 
-const crud = require("./controller/crud");
+
+
 router.post("/save", crud.save);
 router.post("/update", crud.update);
 
@@ -58,6 +62,8 @@ router.get('/delete/:idProducto', (req, res) => {
         }
     })
 });
+
+
 
 
 module.exports = router;
