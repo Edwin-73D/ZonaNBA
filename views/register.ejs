@@ -6,63 +6,64 @@
     <title>Registro</title>
 </head>
 <body>
-   <div class="Registro" > 
-        <form class="form-registro" method="post" action="/register">
+   <div class="Registro"> 
+        <form class="form-registro" method="post" action="/register" id="registro-form">
             <h1 id="title-register">Registro</h1>
             <div class="Nombre">
                 <input type="text" name="nombre" class="control"  placeholder="Nombre" required>
-                <!--<label for="nombres">Nombre</label>-->
             </div>
             <div class="Apellido">
-                <input type="text" class="control" name="apellido" placeholder="apellido" required>
-                <!-- <label for="apellidos">Apellido</label> -->
+                <input type="text" class="control" name="apellido" placeholder="Apellido" required>
             </div>
             <div class="Correo">
-                <input type="email" class="control" name="correo" placeholder="correo" required>
-                <!-- <label for="Correo">Correo</label> -->
+                <input type="email" class="control" name="correo" placeholder="Correo" required>
             </div>
             <div class="Direccion">
-                <input type="text" class="control" name="direccion" placeholder="direccion" required>
-                <!-- <label for="Direccion">Dirección</label> -->
+                <input type="text" class="control" name="direccion" placeholder="Dirección" required>
             </div>
             <div class="Telefono">
-                <input type="number" class="control" name="telefono" placeholder="telefono" required>
-                <!-- <label for="Telefono">Número de teléfono</label> -->
+                <input type="number" class="control" name="telefono" placeholder="Teléfono" required>
             </div>
-            <select id="rol" name="rol" class="select-css">
-                <option value="data-entry">data-entry</option>
+            <select id="rol" name="rol" class="select-css" hidden>
+                <option value="data-entry" selected>data-entry</option>
                 <option value="admin">admin</option>
             </select>
             <div class="Fecha-Nacimiento">
-                <input type="date" class="control" name="fecha_nacimiento" required>
-                <!-- <label for="Fecha-nacimiento">Fecha de nacimiento</label> -->
+                <input type="date" class="control" id="fecha-nacimiento" name="fecha_nacimiento" required>
             </div>
             <div class="Password">
                 <input type="password" class="control" name="password" placeholder="Contraseña" required>
-                <!-- <label for="password">Contraseña</label>    -->
             </div>
             <input class="button-Registro" type="submit" value="Registrar">
-            <p><a id="link-login" href="/">¿ya tienes una cuenta?</a></p>
-
+            <p><a id="link-login" href="/">¿Ya tienes una cuenta?</a></p>
         </form>
    </div>
 
    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-   
-   <% if(typeof alert != "undefined") { %>
-        <script>
-            Swal.fire({
-                title:"<%= alertTitle %>",
-                text: "<%= alertMessage %>",
-                icon: "<%= alertIcon %>",
-                showConfirmButton: "<%= showConfirmButton %> ",
-                timer: "<%= timer %> ",
-            }).then(()=>{
-                window.location="/ <%= ruta %>"
-            })
-        </script>
-        <% } %>
+   <script>
+        document.getElementById('registro-form').addEventListener('submit', function(event) {
+            const fechaNacimiento = new Date(document.getElementById('fecha-nacimiento').value);
+            const hoy = new Date();
+            const edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+            const mes = hoy.getMonth() - fechaNacimiento.getMonth();
 
+            // Verificar si el mes y el día reducen la edad en un año.
+            if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
+                edad--;
+            }
+
+            if (edad < 18) {
+                event.preventDefault(); // Detener el envío del formulario
+                Swal.fire({
+                    title: 'Registro Denegado',
+                    text: 'Debes ser mayor de edad para registrarte.',
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
+                });
+            }
+        });
+   </script>
 </body>
 </html>
+
 
